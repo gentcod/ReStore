@@ -1,14 +1,14 @@
 using API.Entities;
 
-namespace API.Data
-{
-   public static class DbInitializer
-    {
-        public static void Initialize(StoreContext context)
-        {
-            if (context.Products.Any()) return;
+namespace API.Data;
 
-            var products = new List<Product>
+public static class DbInitializer
+{
+   public static void Initialize(StoreContext context)
+   {
+      if (context.Products.Any()) return;
+
+      var products = new List<Product>
             {
                 new Product
                 {
@@ -208,9 +208,8 @@ namespace API.Data
                 },
             };
 
-            context.Products.AddRange(products);
+      context.Products.AddRange(products);
 
-            context.SaveChanges();
-        }
-    }
+      context.SaveChanges();
+   }
 }
