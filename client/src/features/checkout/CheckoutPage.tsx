@@ -6,10 +6,10 @@ import PaymentForm from "./PaymentForm";
 import Review from "./Review";
 import { yupResolver } from '@hookform/resolvers/yup';
 import { validationSchema } from "./checkoutValidation";
+import { useAppDispatch, useAppSelector } from "../../app/store/configureStore";
 import agent from "../../app/api/agent";
 import { clearBasket } from "../basket/basketSlice";
 import { LoadingButton } from "@mui/lab";
-import { useAppDispatch, useAppSelector } from "../../app/store/configureStore";
 import { StripeElementType } from "@stripe/stripe-js";
 import { CardNumberElement, useElements, useStripe } from "@stripe/react-stripe-js";
 
@@ -22,7 +22,7 @@ export default function CheckoutPage() {
     const dispatch = useAppDispatch();
     const [cardState, setCardState] = useState<{ elementError: { [key in StripeElementType]?: string } }>({ elementError: {} });
     const [cardComplete, setCardComplete] = useState<any>({ cardNumber: false, cardExpiry: false, cardCvc: false });
-    const [paymentMessage, setPaymentMessage] = useState('');
+    const [paymentMessage, setPaymentMessage] = useState("");
     const [paymentSucceeded, setPaymentSucceeded] = useState(false);
     const { basket } = useAppSelector(state => state.basket);
     const stripe = useStripe();
@@ -36,7 +36,7 @@ export default function CheckoutPage() {
                 [event.elementType]: event.error?.message
             }
         })
-        setCardComplete({ ...cardComplete, [event.elementType]: event.complete });
+        setCardComplete({ ...cardComplete, [event.elementType]: event.complete })
     }
 
     function getStepContent(step: number) {
@@ -57,7 +57,7 @@ export default function CheckoutPage() {
     const methods = useForm({
         mode: 'all',
         resolver: yupResolver(currentValidationSchema)
-    });
+    })
 
     useEffect(() => {
         agent.Account.fetchAddress()
@@ -66,11 +66,11 @@ export default function CheckoutPage() {
                     methods.reset({ ...methods.getValues(), ...response, saveAddress: false })
                 }
             })
-    }, [methods])
+    }, [methods]);
 
     async function submitOrder(data: FieldValues) {
         setLoading(true);
-        const { nameOnCard, saveAddress, ...shippingAddress } = data;
+        const { nameOnCard, saveAddress, ...address } = data;
         if (!stripe || !elements) return; // stripe not ready
         try {
             const cardElement = elements.getElement(CardNumberElement);
@@ -84,7 +84,7 @@ export default function CheckoutPage() {
             });
             console.log(paymentResult);
             if (paymentResult.paymentIntent?.status === 'succeeded') {
-                const orderNumber = await agent.Orders.create({ saveAddress, shippingAddress });
+                const orderNumber = await agent.Orders.create({ saveAddress, shippingAddress: address });
                 setOrderNumber(orderNumber);
                 setPaymentSucceeded(true);
                 setPaymentMessage('Thank you - we have received your payment');
@@ -153,7 +153,7 @@ export default function CheckoutPage() {
                                     shipped as this is a fake store!
                                 </Typography>
                             ) : (
-                                <Button variant='contained' onClick={handleBack}>
+                                <Button variant="contained" onClick={handleBack}>
                                     Go back and try again
                                 </Button>
                             )}

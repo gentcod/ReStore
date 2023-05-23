@@ -2,15 +2,15 @@ import { createContext, PropsWithChildren, useContext, useState } from "react";
 import { Basket } from "../models/basket";
 
 interface StoreContextValue {
-    basket: Basket | null;
-    setBasket: (basket: Basket) => void;
     removeItem: (productId: number, quantity: number) => void;
+    setBasket: (basket: Basket) => void;
+    basket: Basket | null;
 }
 
 export const StoreContext = createContext<StoreContextValue | undefined>(undefined);
 
 export function useStoreContext() {
-    const context = useContext(StoreContext);
+    let context = useContext(StoreContext);
 
     if (context === undefined) {
         throw Error('Oops - we do not seem to be inside the provider');
@@ -24,7 +24,7 @@ export function StoreProvider({children}: PropsWithChildren<any>) {
 
     function removeItem(productId: number, quantity: number) {
         if (!basket) return;
-        const items = [...basket.items];
+        const items = [...basket.items]; // new array of items
         const itemIndex = items.findIndex(i => i.productId === productId);
         if (itemIndex >= 0) {
             items[itemIndex].quantity -= quantity;

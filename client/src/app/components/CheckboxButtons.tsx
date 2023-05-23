@@ -7,14 +7,14 @@ interface Props {
     onChange: (items: string[]) => void;
 }
 
-export default function CheckboxButtons({items, checked, onChange}: Props) {
+export default function CheckboxButtons({ items, checked, onChange }: Props) {
     const [checkedItems, setCheckedItems] = useState(checked || []);
 
     function handleChecked(value: string) {
         const currentIndex = checkedItems.findIndex(item => item === value);
         let newChecked: string[] = [];
         if (currentIndex === -1) newChecked = [...checkedItems, value];
-        else newChecked = checkedItems.filter(item => item !== value);
+        else newChecked = checkedItems.filter(i => i !== value);
         setCheckedItems(newChecked);
         onChange(newChecked);
     }
@@ -22,14 +22,13 @@ export default function CheckboxButtons({items, checked, onChange}: Props) {
     return (
         <FormGroup>
             {items.map(item => (
-                <FormControlLabel 
-                    control={<Checkbox 
+                <FormControlLabel
+                    key={item}
+                    control={<Checkbox
                         checked={checkedItems.indexOf(item) !== -1}
                         onClick={() => handleChecked(item)}
-                    />} 
-                    label={item} 
-                    key={item} 
-                />
+                    />}
+                    label={item} />
             ))}
         </FormGroup>
     )

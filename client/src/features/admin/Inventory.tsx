@@ -1,15 +1,15 @@
-import { Typography, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Box } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
-import { currencyFormat } from "../../app/util/util";
-import useProducts from "../../app/hooks/useProducts";
-import AppPagination from "../../app/components/AppPagination";
-import { useAppDispatch } from "../../app/store/configureStore";
-import { removeProduct, setPageNumber } from "../catalog/catalogSlice";
-import { useState } from "react";
-import ProductForm from "./ProductForm";
-import { Product } from "../../app/models/product";
-import agent from "../../app/api/agent";
 import { LoadingButton } from "@mui/lab";
+import { Box, Typography, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody } from "@mui/material";
+import { useState } from "react";
+import agent from "../../app/api/agent";
+import AppPagination from "../../app/components/AppPagination";
+import useProducts from "../../app/hooks/useProducts";
+import { Product } from "../../app/models/product";
+import { useAppDispatch } from "../../app/store/configureStore";
+import { currencyFormat } from "../../app/util/util";
+import { removeProduct, setPageNumber } from "../catalog/catalogSlice";
+import ProductForm from "./ProductForm";
 
 export default function Inventory() {
     const {products, metaData} = useProducts();
@@ -26,11 +26,11 @@ export default function Inventory() {
 
     function handleDeleteProduct(id: number) {
         setLoading(true);
-        setTarget(id);
+        setTarget(id)
         agent.Admin.deleteProduct(id)
             .then(() => dispatch(removeProduct(id)))
             .catch(error => console.log(error))
-            .finally(() => setLoading(false));
+            .finally(() => setLoading(false))
     }
 
     function cancelEdit() {
@@ -82,9 +82,8 @@ export default function Inventory() {
                                     <Button onClick={() => handleSelectProduct(product)} startIcon={<Edit />} />
                                     <LoadingButton 
                                         loading={loading && target === product.id} 
-                                        startIcon={<Delete />} color='error' 
-                                        onClick={() => handleDeleteProduct(product.id)}
-                                    />
+                                        onClick={() => handleDeleteProduct(product.id)} 
+                                        startIcon={<Delete />} color='error' />
                                 </TableCell>
                             </TableRow>
                         ))}
@@ -95,8 +94,7 @@ export default function Inventory() {
                 <Box sx={{pt: 2}}>
                     <AppPagination 
                         metaData={metaData} 
-                        onPageChange={(page: number) => dispatch(setPageNumber({pageNumber: page}))}
-                    />
+                        onPageChange={(page: number) => dispatch(setPageNumber({pageNumber: page}))} />
                 </Box>
             }
         </>

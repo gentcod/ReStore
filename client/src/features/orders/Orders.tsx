@@ -15,13 +15,13 @@ export default function Orders() {
         agent.Orders.list()
             .then(orders => setOrders(orders))
             .catch(error => console.log(error))
-            .finally(() => setLoading(false));
-    }, [])
+            .finally(() => setLoading(false))
+    }, []);
 
-    if (loading) return <LoadingComponent message='Loading orders' />
+    if (loading) return <LoadingComponent message="Loading orders..." />
 
     if (selectedOrderNumber > 0) return (
-        <OrderDetailed 
+        <OrderDetailed
             order={orders?.find(o => o.id === selectedOrderNumber)!}
             setSelectedOrder={setSelectedOrderNumber}
         />
@@ -32,7 +32,7 @@ export default function Orders() {
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
                     <TableRow>
-                        <TableCell>Order number</TableCell>
+                        <TableCell>Order Number</TableCell>
                         <TableCell align="right">Total</TableCell>
                         <TableCell align="right">Order Date</TableCell>
                         <TableCell align="right">Order Status</TableCell>

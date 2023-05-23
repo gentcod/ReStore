@@ -1,14 +1,12 @@
-import Typography from '@mui/material/Typography';
-import Grid from '@mui/material/Grid';
-import TextField from '@mui/material/TextField';
-import { useFormContext } from 'react-hook-form';
-import AppTextInput from '../../app/components/AppTextInput';
-import { CardCvcElement, CardExpiryElement, CardNumberElement } from '@stripe/react-stripe-js';
-import { StripeInput } from './StripeInput';
-import { StripeElementType } from '@stripe/stripe-js';
+import { Typography, Grid, TextField } from "@mui/material";
+import { CardCvcElement, CardExpiryElement, CardNumberElement } from "@stripe/react-stripe-js";
+import { StripeElementType } from "@stripe/stripe-js";
+import { useFormContext } from "react-hook-form";
+import AppTextInput from "../../app/components/AppTextInput";
+import { StripeInput } from "./StripeInput";
 
 interface Props {
-  cardState: { elementError: { [key in StripeElementType]?: string } };
+  cardState: {elementError: {[key in StripeElementType]?: string}},
   onCardInputChange: (event: any) => void;
 }
 
@@ -22,13 +20,18 @@ export default function PaymentForm({cardState, onCardInputChange}: Props) {
       </Typography>
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
-          <AppTextInput name='nameOnCard' label='Name on card' control={control} />
+          <AppTextInput
+            name='nameOnCard'
+            label='Name on card'
+            control={control}
+          />
         </Grid>
         <Grid item xs={12} md={6}>
           <TextField
             onChange={onCardInputChange}
             error={!!cardState.elementError.cardNumber}
             helperText={cardState.elementError.cardNumber}
+            id="cardNumber"
             label="Card number"
             fullWidth
             autoComplete="cc-number"
