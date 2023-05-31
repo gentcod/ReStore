@@ -5,11 +5,11 @@ import { setProductParams } from "./catalogSlice";
 
 export default function Search() {
     const { productParams } = useAppSelector(state => state.catalog);
-    const [searchTerm, setSearchTerm] = useState(productParams.searchTerm);
+    const [keyword, setKeyword] = useState(productParams.keyword);
     const dispatch = useAppDispatch();
 
     const debouncedSearch = debounce((event: any) => {
-        dispatch(setProductParams({ searchTerm: event.target.value }))
+        dispatch(setProductParams({ keyword: event.target.value }))
     }, 1000)
 
     return (
@@ -17,9 +17,9 @@ export default function Search() {
             label='Search products'
             variant='outlined'
             fullWidth
-            value={searchTerm || ''}
+            value={keyword || ''}
             onChange={(event: any) => {
-                setSearchTerm(event.target.value);
+                setKeyword(event.target.value);
                 debouncedSearch(event);
             }}
         />
