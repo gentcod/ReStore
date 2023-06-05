@@ -1,6 +1,7 @@
 using API.Data;
 using API.DTOs;
 using API.Entities;
+using API.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,17 +18,17 @@ public class BasketController : BaseApiController
    [HttpGet(Name = "GetBasket")]
    public async Task<ActionResult<BasketDto>> GetBasket()
    {
-      Basket basket = await RetrieveBasket();
+      Basket basket = await RetrieveBasket(GetBuyerId());
 
       if (basket == null) return NotFound();
-      return MapBasketToDto(basket);
+      return basket.MapBasketToDto();
    }
 
    [HttpPost]
    public async Task<ActionResult> AddItemToBasket(int productId, int quantity)
    {
       //get basket
-      var basket = await RetrieveBasket();
+      var basket = await RetrieveBasket(GetBuyerId());
 
       //create basket
       if (basket == null) basket = CreateBaket();
@@ -38,20 +39,20 @@ public class BasketController : BaseApiController
 
       //add item
       basket.AddItem(product, quantity);
-    
+
       //save changes
       var result = await _context.SaveChangesAsync() > 0;
 
-      if (result) return CreatedAtRoute("GetBasket", MapBasketToDto(basket));
+      if (result) return CreatedAtRoute("GetBasket", basket.MapBasketToDto());
 
-      return BadRequest(new ProblemDetails{Title = "Problem saving item to basket"});
+      return BadRequest(new ProblemDetails { Title = "Problem saving item to basket" });
    }
 
    [HttpDelete]
    public async Task<ActionResult> RemoveBaketItem(int productId, int quantity)
    {
       //get basket
-      var basket = await RetrieveBasket();
+      var basket = await RetrieveBasket(GetBuyerId());
       if (basket == null) return NotFound();
 
       //remove item or reduce quantity
@@ -59,47 +60,42 @@ public class BasketController : BaseApiController
 
       //save changes
       var result = await _context.SaveChangesAsync() > 0;
-      if(result) return Ok();
+      if (result) return Ok();
 
-      return BadRequest(new ProblemDetails{Title = "Problem removing an item"});
+      return BadRequest(new ProblemDetails { Title = "Problem removing an item" });
    }
 
-    private async Task<Basket> RetrieveBasket()
+   private async Task<Basket> RetrieveBasket(string buyerId)
    {
+      if (string.IsNullOrEmpty(buyerId))
+      {
+         Response.Cookies.Delete("buyerId");
+         return null;
+      }
       return await _context.Baskets
               .Include(i => i.Items)
               .ThenInclude(p => p.Product)
-              .FirstOrDefaultAsync(x => x.BuyerId == Request.Cookies["buyerId"]);
+              .FirstOrDefaultAsync(x => x.BuyerId == buyerId);
    }
 
-    private Basket CreateBaket()
+   private string GetBuyerId()
    {
-        var buyerId = Guid.NewGuid().ToString();
-        var cookieOptions = new CookieOptions{IsEssential = true, Expires = DateTime.Now.AddDays(30)};
-        Response.Cookies.Append("buyerId", buyerId, cookieOptions);
-
-        var basket = new Basket{BuyerId = buyerId};
-        _context.Baskets.Add(basket);
-
-        return basket;
+      return User.Identity.Name ?? Request.Cookies["buyerId"];
    }
 
-   private BasketDto MapBasketToDto(Basket basket)
+   private Basket CreateBaket()
    {
-      return new BasketDto
+      var buyerId = User.Identity?.Name;
+      if (string.IsNullOrEmpty(buyerId))
       {
-         Id = basket.Id,
-         BuyerId = basket.BuyerId,
-         Items = basket.Items.Select(item => new BasketItemDto
-         {
-            ProductId = item.ProductId,
-            Name = item.Product.Name,
-            Price = item.Product.Price,
-            PictureUrl = item.Product.PictureUrl,
-            Type = item.Product.Type,
-            Brand = item.Product.Brand,
-            Quantity = item.Quantity
-         }).ToList()
-      };
+         buyerId = Guid.NewGuid().ToString();
+         var cookieOptions = new CookieOptions { IsEssential = true, Expires = DateTime.Now.AddDays(30) };
+         Response.Cookies.Append("buyerId", buyerId, cookieOptions);
+      }
+
+      var basket = new Basket { BuyerId = buyerId };
+      _context.Baskets.Add(basket);
+
+      return basket;
    }
 }
